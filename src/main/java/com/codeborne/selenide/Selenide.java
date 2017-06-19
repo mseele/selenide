@@ -548,9 +548,21 @@ public class Selenide {
    */
   public static String dismiss(String expectedDialogText) {
     if (!doDismissModalDialogs()) {
-      Alert alert = switchTo().alert();
-      String actualDialogText = alert.getText();
-      alert.dismiss();
+      String actualDialogText = null;
+      for (int i = 0; i < 10 && actualDialogText == null; i++) {
+        try {
+          System.out.println(i + ") try to switch to alert");
+          Alert alert = switchTo().alert();
+          System.out.println(i + ") switched to alert");
+          actualDialogText = alert.getText();
+          System.out.println(i + ") actualDialogText: " + actualDialogText);
+          alert.dismiss();
+          System.out.println(i + ") dismissed.");
+        }
+        catch (WebDriverException e) {
+          e.printStackTrace();
+        }
+      }
       checkDialogText(expectedDialogText, actualDialogText);
       return actualDialogText;
     }
