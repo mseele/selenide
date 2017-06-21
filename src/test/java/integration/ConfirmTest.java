@@ -11,6 +11,8 @@ import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.openqa.selenium.By;
 
+import java.lang.management.ManagementFactory;
+
 import static com.codeborne.selenide.Condition.empty;
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Selectors.byText;
@@ -35,7 +37,8 @@ public class ConfirmTest extends IntegrationTest {
   @Rule public TestWatcher testName = new TestWatcher() {
     @Override
     protected void starting(Description description) {
-      Selenide.TEST.set(description.toString());
+      String jvmName = ManagementFactory.getRuntimeMXBean().getName();
+      Selenide.TEST.set(description.toString() + " " + jvmName + " " + Thread.currentThread().getName());
     }
 
     @Override
