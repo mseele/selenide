@@ -7,9 +7,8 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestRule;
+import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
 import org.openqa.selenium.By;
 
 import static com.codeborne.selenide.Condition.empty;
@@ -33,21 +32,15 @@ public class ConfirmTest extends IntegrationTest {
     $(By.name("username")).val(userName);
   }
 
-  @Rule
-  public TestRule report = new TestRule() {
+  @Rule public TestWatcher testName = new TestWatcher() {
     @Override
-    public Statement apply(Statement statement, Description description) {
-      try {
-        Selenide.TEST.set(description.toString());
-        statement.evaluate();
-        return statement;
-      }
-      catch (Throwable throwable) {
-        throw new RuntimeException(throwable);
-      }
-      finally {
-        Selenide.TEST.remove();
-      }
+    protected void starting(Description description) {
+      Selenide.TEST.set(description.toString());
+    }
+
+    @Override
+    protected void finished(Description description) {
+      Selenide.TEST.remove();
     }
   };
 
