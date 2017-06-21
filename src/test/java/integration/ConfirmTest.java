@@ -1,10 +1,15 @@
 package integration;
 
 import com.automation.remarks.video.annotations.Video;
+import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.ex.DialogTextMismatch;
 import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
 import org.openqa.selenium.By;
 
 import static com.codeborne.selenide.Condition.empty;
@@ -27,6 +32,24 @@ public class ConfirmTest extends IntegrationTest {
     $("h1").shouldHave(text("Page with alerts"));
     $(By.name("username")).val(userName);
   }
+
+  @Rule
+  public TestRule report = new TestRule() {
+    @Override
+    public Statement apply(Statement statement, Description description) {
+      try {
+        Selenide.TEST.set(description.toString());
+        statement.evaluate();
+        return statement;
+      }
+      catch (Throwable throwable) {
+        throw new RuntimeException(throwable);
+      }
+      finally {
+        Selenide.TEST.remove();
+      }
+    }
+  };
 
   @Test @Video
   public void canSubmitConfirmDialogWithoutCheckingText() {

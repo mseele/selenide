@@ -510,6 +510,8 @@ public class Selenide {
     return confirm(null);
   }
 
+  public static ThreadLocal<String> TEST = new ThreadLocal<>();
+  
   /**
    * Accept (Click "Yes" or "Ok") in the confirmation dialog (javascript 'alert' or 'confirm').
    * Method does nothing in case of HtmlUnit browser (since HtmlUnit does not support alerts).
@@ -520,9 +522,22 @@ public class Selenide {
    */
   public static String confirm(String expectedDialogText) {
     if (!doDismissModalDialogs()) {
-      Alert alert = switchTo().alert();
-      String actualDialogText = alert.getText();
-      alert.accept();
+      String actualDialogText = null;
+      for (int i = 0; i < 10 && actualDialogText == null; i++) {
+        try {
+          System.out.println(TEST.get() + " " + i + ") try to switch to alert");
+          Alert alert = switchTo().alert();
+          System.out.println(TEST.get() + " " + i + ") switched to alert");
+          actualDialogText = alert.getText();
+          System.out.println(TEST.get() + " " + i + ") actualDialogText: " + actualDialogText);
+          alert.accept();
+          System.out.println(TEST.get() + " " + i + ") accepted.");
+        }
+        catch (WebDriverException e) {
+          System.err.print(TEST.get() + " " + i + ": ");
+          e.printStackTrace();
+        }
+      }
       checkDialogText(expectedDialogText, actualDialogText);
       return actualDialogText;
     }
@@ -551,15 +566,16 @@ public class Selenide {
       String actualDialogText = null;
       for (int i = 0; i < 10 && actualDialogText == null; i++) {
         try {
-          System.out.println(i + ") try to switch to alert");
+          System.out.println(TEST.get() + " " + i + ") try to switch to alert");
           Alert alert = switchTo().alert();
-          System.out.println(i + ") switched to alert");
+          System.out.println(TEST.get() + " " + i + ") switched to alert");
           actualDialogText = alert.getText();
-          System.out.println(i + ") actualDialogText: " + actualDialogText);
+          System.out.println(TEST.get() + " " + i + ") actualDialogText: " + actualDialogText);
           alert.dismiss();
-          System.out.println(i + ") dismissed.");
+          System.out.println(TEST.get() + " " + i + ") dismissed.");
         }
         catch (WebDriverException e) {
+          System.err.print(TEST.get() + " " + i + ": ");
           e.printStackTrace();
         }
       }
